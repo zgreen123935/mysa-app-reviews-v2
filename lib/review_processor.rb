@@ -1,6 +1,5 @@
 require 'json'
 require 'net/http'
-require_relative 'mock_data'
 
 class ReviewProcessor
   class SlackError < StandardError; end
@@ -18,8 +17,7 @@ class ReviewProcessor
     @slack_channel = slack_channel
   end
 
-  def process_reviews
-    reviews = MockData::ReviewGenerator.generate_reviews
+  def process_reviews(reviews)
     results = {
       processed: 0,
       errors: [],
