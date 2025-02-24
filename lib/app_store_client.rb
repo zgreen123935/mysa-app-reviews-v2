@@ -73,7 +73,6 @@ class AppStoreClient
   def generate_token
     # Format private key for ES256
     key = format_private_key(@private_key)
-    private_key = OpenSSL::PKey.read(key)
     
     token = JWT.encode(
       {
@@ -81,7 +80,7 @@ class AppStoreClient
         exp: Time.now.to_i + 300,  # 5 minute expiration
         aud: "appstoreconnect-v1"
       },
-      private_key,
+      key,
       "ES256",
       {
         kid: @key_id
