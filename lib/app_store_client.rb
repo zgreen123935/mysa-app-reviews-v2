@@ -74,7 +74,7 @@ class AppStoreClient
     # Format private key for ES256
     key = format_private_key(@private_key)
     private_key = OpenSSL::PKey::EC.new('prime256v1')
-    private_key.private_key = OpenSSL::BN.new(key, 2)
+    private_key.generate_key
     
     token = JWT.encode(
       {
