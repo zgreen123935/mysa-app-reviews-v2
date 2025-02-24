@@ -1,11 +1,21 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/*.rb", "use": "@vercel/ruby" },
+    { 
+      "src": "api/*.rb",
+      "use": "@vercel/ruby",
+      "config": {
+        "bundle": true,
+        "handler": "Handler"
+      }
+    },
     { "src": "public/**", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { 
+      "src": "/api/(.*)",
+      "dest": "/api/$1.rb"
+    },
     { "src": "/", "dest": "/public/index.html" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
