@@ -1,0 +1,5 @@
+.env
+.vercel
+*.p8
+node_modules/
+.DS_Store
