@@ -73,7 +73,8 @@ class AppStoreClient
   def generate_token
     # Format private key for ES256
     key = format_private_key(@private_key)
-    private_key = OpenSSL::PKey::EC.new(key)
+    private_key = OpenSSL::PKey::EC.new('prime256v1')
+    private_key.private_key = OpenSSL::BN.new(key, 2)
     
     token = JWT.encode(
       {
@@ -92,10 +93,10 @@ class AppStoreClient
   end
 
   def format_private_key(key)
-    # If key doesn't start with BEGIN/END markers, add them
-    unless key.include?("BEGIN") && key.include?("END")
-      key = "-----BEGIN PRIVATE KEY-----\n#{key}\n-----END PRIVATE KEY-----"
-    end
+    # Remove any whitespace and newlines
+    key = key.gsub(/[[:space:]]/, '')
+    # Remove BEGIN/END markers if present
+    key = key.gsub(/-+BEGIN[^-]+-+|-+END[^-]+-+/, '')
     key
   end
 end
