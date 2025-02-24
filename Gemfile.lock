@@ -3,12 +3,10 @@ GEM
   specs:
     base64 (0.2.0)
     dotenv (2.8.1)
-    json (2.7.6)
+    ecdsa (1.2.0)
     jwt (2.10.1)
       base64
     rack (3.1.10)
-    rackup (2.2.1)
-      rack (>= 3)
     webrick (1.9.1)
 
 PLATFORMS
@@ -16,10 +14,9 @@ PLATFORMS
 
 DEPENDENCIES
   dotenv
-  json
+  ecdsa
   jwt
   rack
-  rackup
   webrick
 
 BUNDLED WITH
