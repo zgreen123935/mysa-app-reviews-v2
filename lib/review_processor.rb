@@ -3,7 +3,17 @@ require 'net/http'
 require_relative 'mock_data'
 
 class ReviewProcessor
+  class SlackError < StandardError; end
+
   def initialize(slack_token, slack_channel)
+    if slack_token.nil? || slack_token.empty?
+      raise SlackError, "Slack token is missing"
+    end
+    
+    if slack_channel.nil? || slack_channel.empty?
+      raise SlackError, "Slack channel ID is missing"
+    end
+
     @slack_token = slack_token
     @slack_channel = slack_channel
   end
@@ -12,13 +22,37 @@ class ReviewProcessor
     reviews = MockData::ReviewGenerator.generate_reviews
     results = {
       processed: 0,
-      errors: []
+      errors: [],
+      debug_info: {
+        slack_token_length: @slack_token&.length,
+        channel_id_length: @slack_channel&.length,
+        review_count: reviews.values.flatten.length
+      }
     }
 
     reviews.each do |platform, platform_reviews|
       platform_reviews.each do |review|
-        post_to_slack(format_review(platform, review))
-        results[:processed] += 1
+        begin
+          response = post_to_slack(format_review(platform, review))
+          slack_data = JSON.parse(response.body)
+          
+          if slack_data['ok']
+            results[:processed] += 1
+          else
+            results[:errors] << {
+              type: 'slack_error',
+              message: slack_data['error'],
+              review: review[:id]
+            }
+          end
+        rescue => e
+          results[:errors] << {
+            type: 'processing_error',
+            message: e.message,
+            review: review[:id],
+            backtrace: e.backtrace
+          }
+        end
       end
     end
 
@@ -94,8 +128,6 @@ class ReviewProcessor
   end
 
   def post_to_slack(message)
-    return if @slack_token.nil? || @slack_token.empty?
-
     uri = URI('https://slack.com/api/chat.postMessage')
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
@@ -108,8 +140,9 @@ class ReviewProcessor
     begin
       response = http.request(request)
       puts "Slack API Response: #{response.code} - #{response.body}"
+      response
     rescue => e
-      puts "Error posting to Slack: #{e.message}"
+      raise SlackError, "Failed to post to Slack: #{e.message}"
     end
   end
 end
