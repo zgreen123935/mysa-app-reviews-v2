@@ -93,10 +93,15 @@ class AppStoreClient
   end
 
   def format_private_key(key)
-    # Add PEM markers if they don't exist
-    unless key.include?("BEGIN PRIVATE KEY") || key.include?("BEGIN EC PRIVATE KEY")
-      key = "-----BEGIN EC PRIVATE KEY-----\n#{key}\n-----END EC PRIVATE KEY-----\n"
+    # Check if the key is already in PEM format
+    return key if key.include?("BEGIN")
+    
+    # Try to read it as a file path
+    if File.exist?(key)
+      return File.read(key)
     end
-    key
+    
+    # Otherwise treat it as the raw key content
+    "-----BEGIN PRIVATE KEY-----\n#{key}\n-----END PRIVATE KEY-----\n"
   end
 end
