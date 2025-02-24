@@ -1,11 +1,9 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    base64 (0.2.0)
     dotenv (2.8.1)
     ecdsa (1.2.0)
-    jwt (2.10.1)
-      base64
+    jwt (2.7.1)
     rack (3.1.10)
     webrick (1.9.1)
 
@@ -15,7 +13,7 @@ PLATFORMS
 DEPENDENCIES
   dotenv
   ecdsa
-  jwt
+  jwt (= 2.7.1)
   rack
   webrick
 
