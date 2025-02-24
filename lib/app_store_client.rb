@@ -71,17 +71,13 @@ class AppStoreClient
   end
 
   def generate_token
-    # Format private key for ES256
-    key = format_private_key(@private_key)
-    private_key = OpenSSL::PKey::EC.new(key)
-    
     token = JWT.encode(
       {
         iss: @issuer_id,
         exp: Time.now.to_i + 300,  # 5 minute expiration
         aud: "appstoreconnect-v1"
       },
-      private_key,
+      @private_key,
       "ES256",
       {
         kid: @key_id
@@ -92,10 +88,6 @@ class AppStoreClient
   end
 
   def format_private_key(key)
-    # Add PEM markers if they don't exist
-    unless key.include?("BEGIN PRIVATE KEY")
-      key = "-----BEGIN PRIVATE KEY-----\n#{key}\n-----END PRIVATE KEY-----\n"
-    end
     key
   end
 end
