@@ -73,7 +73,9 @@ class AppStoreClient
   def generate_token
     # Format private key for ES256
     key = format_private_key(@private_key)
-    private_key = OpenSSL::PKey::EC.new(key)
+    group = OpenSSL::PKey::EC::Group.new('prime256v1')
+    private_key = OpenSSL::PKey::EC.new(group)
+    private_key.private_key = OpenSSL::BN.new(key, 16)
     
     token = JWT.encode(
       {
