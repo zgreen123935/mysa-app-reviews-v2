@@ -2,6 +2,8 @@ require 'jwt'
 require 'net/http'
 require 'json'
 require 'time'
+require 'base64'
+require 'openssl'
 
 class AppStoreClient
   APP_STORE_API_ENDPOINT = "https://api.appstoreconnect.apple.com/v1"
@@ -69,7 +71,9 @@ class AppStoreClient
   end
 
   def generate_token
-    private_key = OpenSSL::PKey::EC.new(@private_key)
+    # Format private key for ES256
+    key = format_private_key(@private_key)
+    private_key = OpenSSL::PKey::EC.new(key)
     
     token = JWT.encode(
       {
@@ -85,5 +89,13 @@ class AppStoreClient
     )
     
     token
+  end
+
+  def format_private_key(key)
+    # If key doesn't start with BEGIN/END markers, add them
+    unless key.include?("BEGIN") && key.include?("END")
+      key = "-----BEGIN PRIVATE KEY-----\n#{key}\n-----END PRIVATE KEY-----"
+    end
+    key
   end
 end
